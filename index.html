@@ -114,10 +114,19 @@ pre {
 .error {
   color: #ff6b6b;
 }
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 25px;
+}
 
 @media (max-width: 900px) {
   .flex {
     flex-direction: column;
+  }
+	
+  .results-grid {
+    grid-template-columns: 1fr;
   }
 }
 </style>
@@ -130,7 +139,7 @@ pre {
   <textarea id="urls" placeholder="Enter URLs (one per line)"></textarea>
   <button id="openBtn">Open All</button>
 
-  <div id="results"></div>
+  <div id="results" class="results-grid"></div>
 </div>
 
 <script>

@@ -3,24 +3,16 @@ export async function handler(event) {
   const url = params.url;
 
   if (!url) {
-    return {
-      statusCode: 400,
-      body: 'Missing url parameter'
-    };
+    return { statusCode: 400, body: 'Missing url' };
   }
 
   try {
     const res = await fetch(url, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Sitemap Viewer)'
-      }
+      headers: { 'User-Agent': 'Mozilla/5.0' }
     });
 
     if (!res.ok) {
-      return {
-        statusCode: res.status,
-        body: 'Unable to fetch sitemap'
-      };
+      return { statusCode: res.status, body: 'Fetch failed' };
     }
 
     const text = await res.text();
@@ -34,9 +26,6 @@ export async function handler(event) {
       body: text
     };
   } catch {
-    return {
-      statusCode: 500,
-      body: 'Server error'
-    };
+    return { statusCode: 500, body: 'Server error' };
   }
 }

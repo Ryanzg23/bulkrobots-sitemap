@@ -240,7 +240,8 @@ sites.forEach(site => {
 
     const pre = box.querySelector('.sitemap');
 
-fetch(`/.netlify/functions/sitemap?url=${encodeURIComponent(site + '/sitemap.xml')}`)
+fetch(\`/.netlify/functions/sitemap?url=\${encodeURIComponent(site + '/sitemap.xml')}\`)
+
   .then(res => {
     if (!res.ok) throw new Error('Blocked or not found');
     return res.text();

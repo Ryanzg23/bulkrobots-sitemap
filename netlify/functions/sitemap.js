@@ -1,5 +1,6 @@
 export async function handler(event) {
-  const url = event.queryStringParameters?.url;
+  const params = event.queryStringParameters || {};
+  const url = params.url;
 
   if (!url) {
     return {

@@ -238,8 +238,6 @@ sites.forEach(site => {
 
     container.appendChild(box);
 
-    const pre = box.querySelector('pre');
-
     const pre = box.querySelector('.sitemap');
 
 fetch(`/.netlify/functions/sitemap?url=${encodeURIComponent(site + '/sitemap.xml')}`)
@@ -269,8 +267,5 @@ fetch(`/.netlify/functions/sitemap?url=${encodeURIComponent(site + '/sitemap.xml
     window.open(url, '_blank');
 }
 </script>
-
-<script src="netlify/functions/sitemap.js"></script>
 </body>
 </html>
-

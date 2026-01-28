@@ -209,55 +209,52 @@ pre.sitemap {
 <div id="content"></div>
 
 <script>
-const sites = ${JSON.stringify(sites)};
+window.onload = function () {
+  const sites = ${JSON.stringify(sites)};
+  const container = document.getElementById('content');
 
-const container = document.getElementById('content');
-
-sites.forEach(site => {
+  sites.forEach(site => {
     const box = document.createElement('div');
     box.className = 'site-box';
 
-    box.innerHTML = \`
-        <h2>\${site}</h2>
-        <div class="flex">
-            <div class="panel">
-                <h3>robots.txt</h3>
-                <iframe src="\${site}/robots.txt"></iframe>
-            </div>
-<div class="panel">
-  <h3>sitemap.xml</h3>
-  <pre class="sitemap">Loading sitemap…</pre>
-  <div style="padding:8px;text-align:center;">
-    <a href="\${site}/sitemap.xml" target="_blank" style="color:#4dabf7;">
-      Open sitemap.xml in new tab
-    </a>
-  </div>
-</div>
-        </div>
-    \`;
+    box.innerHTML =
+  '<h2>' + site + '</h2>' +
+  '<div class="flex">' +
+    '<div class="panel">' +
+      '<h3>robots.txt</h3>' +
+      '<iframe src="' + site + '/robots.txt"></iframe>' +
+    '</div>' +
+    '<div class="panel">' +
+      '<h3>sitemap.xml</h3>' +
+      '<pre class="sitemap">Loading sitemap…</pre>' +
+      '<div style="padding:8px;text-align:center;">' +
+        '<a href="' + site + '/sitemap.xml" target="_blank" style="color:#4dabf7;">' +
+          'Open sitemap.xml in new tab' +
+        '</a>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+
 
     container.appendChild(box);
 
     const pre = box.querySelector('.sitemap');
 
-fetch(\`/.netlify/functions/sitemap?url=\${encodeURIComponent(site + '/sitemap.xml')}\`)
-
-  .then(res => {
-    if (!res.ok) throw new Error('Blocked or not found');
-    return res.text();
-  })
-  .then(text => {
-    pre.textContent = text;
-  })
-  .catch(() => {
-    pre.innerHTML = `
-      <span class="error">
-        Unable to load sitemap via proxy.
-      </span>
-    `;
+    fetch(
+	  '/.netlify/functions/sitemap?url=' +
+	  encodeURIComponent(site + '/sitemap.xml')
+	)
+	  .then(r => r.ok ? r.text() : Promise.reject())
+	  .then(text => {
+		pre.textContent = text;
+	  })
+	  .catch(() => {
+		pre.innerHTML =
+		  '<span class="error">Unable to load sitemap via proxy.</span>';
+	  });
   });
-});
-<\/script>
+};
+</script>
 
 </body>
 </html>

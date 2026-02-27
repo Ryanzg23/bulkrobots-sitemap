@@ -287,31 +287,23 @@ document.getElementById('openBtn').addEventListener('click', () => {
     const isCloudflareR2 = hostname.endsWith('.r2.dev');
     const skipRobotsSitemap = isCloudflarePages || isCloudflareR2;
 
-const box = document.createElement('div');
-box.className = 'site-box';
-results.appendChild(box);
+    const box = document.createElement('div');
+    box.className = 'site-box';
 
-fetch('/.netlify/functions/sitemap?url=' + encodeURIComponent(origin + '/sitemap.xml'))
-  .then(r => r.json())
-  .then(data => {
+    /* ---------- INITIAL RENDER (IMMEDIATE IFRAME) ---------- */
 
-    const is301Domain = data.redirectDomain;
-    const noPanels = skipRobotsSitemap || is301Domain;
-
-    if (noPanels) {
-      const label = is301Domain
-        ? '301 Domain'
-        : 'Not applicable for Pages/R2 domains';
-
+    if (skipRobotsSitemap) {
       box.innerHTML = `
         <h2>${displayUrl}</h2>
         <div class="panel na-panel">
-          <div class="na-badge">${label}</div>
+          <div class="na-badge">Not applicable for Pages/R2 domains</div>
         </div>
       `;
+      results.appendChild(box);
       return;
     }
 
+    // IMPORTANT: iframe inserted immediately
     box.innerHTML = `
       <h2>${displayUrl}</h2>
       <div class="flex">
@@ -320,57 +312,32 @@ fetch('/.netlify/functions/sitemap?url=' + encodeURIComponent(origin + '/sitemap
           <iframe src="${origin}/robots.txt"></iframe>
         </div>
         <div class="panel">
-		  <h3>sitemap.xml</h3>
-		  <object data="${origin}/sitemap.xml" type="application/xml" class="xml-viewer"></object>
-		</div>
+          <h3>sitemap.xml</h3>
+          <iframe src="${origin}/sitemap.xml" class="xml-frame"></iframe>
+        </div>
       </div>
     `;
-  })
-  .catch(() => {
-    box.innerHTML = `
-      <h2>${displayUrl}</h2>
-      <div class="panel na-panel">
-        <div class="na-badge">Unable to load sitemap</div>
-      </div>
-    `;
-  });
-
 
     results.appendChild(box);
 
-    if (!skipRobotsSitemap) {
-      const pre = box.querySelector('pre');
+    /* ---------- 301 DETECTION (DO NOT TOUCH IFRAME) ---------- */
 
-      fetch('/.netlify/functions/sitemap?url=' + encodeURIComponent(origin + '/sitemap.xml'))
-        .then(r => r.json())
-        .then(data => {
+    fetch('/.netlify/functions/sitemap?url=' + encodeURIComponent(origin + '/sitemap.xml'))
+      .then(r => r.json())
+      .then(data => {
+        if (data.redirectDomain) {
+          box.innerHTML = `
+            <h2>${displayUrl}</h2>
+            <div class="panel na-panel">
+              <div class="na-badge">301 Domain</div>
+            </div>
+          `;
+        }
+      })
+      .catch(() => {
+        // ignore — iframe already shows sitemap if exists
+      });
 
-          // --- 301 badge from server ---
-          if (data.redirectDomain) {
-            const h2 = box.querySelector('h2');
-            if (!h2.querySelector('.redirect-badge')) {
-              const badge = document.createElement('span');
-              badge.className = 'redirect-badge';
-              badge.textContent = '301 Domain';
-              h2.appendChild(badge);
-            }
-          }
-
-          // --- sitemap ---
-          if (data.xml && pre) {
-            pre.textContent = data.xml;
-          } else {
-            throw new Error();
-          }
-        })
-        .catch(() => {
-          if (pre) {
-            pre.innerHTML =
-              '<span class="error">Unable to load sitemap.</span><br>' +
-              `<a href="${origin}/sitemap.xml" target="_blank">Open in new tab</a>`;
-          }
-        });
-    }
   });
 });
 
@@ -401,6 +368,7 @@ toggleBtn.addEventListener('click', () => {
 </script>
 </body>
 </html>
+
 
 
 

@@ -347,13 +347,27 @@ document.getElementById('openBtn').addEventListener('click', () => {
 	  const pre = box.querySelector('pre');
 	
 	  fetch('/.netlify/functions/sitemap?url=' + encodeURIComponent(origin + '/sitemap.xml'))
-	    .then(r => r.ok ? r.text() : Promise.reject())
-	    .then(text => pre.textContent = text)
-	    .catch(() => {
-	      pre.innerHTML =
-	        '<span class="error">Unable to load sitemap.</span><br>' +
-	        `<a href="${origin}/sitemap.xml" target="_blank">Open in new tab</a>`;
-	    });
+	  .then(r => r.json())
+	  .then(data => {
+	    if (data.redirectDomain) {
+	      const badge = document.createElement('span');
+	      badge.className = 'redirect-badge';
+	      badge.textContent = '301 Domain';
+	      box.querySelector('h2').appendChild(badge);
+	    }
+	
+	    if (data.xml) {
+	      pre.textContent = data.xml;
+	    } else {
+	      throw new Error();
+	    }
+	  })
+	  .catch(() => {
+	    pre.innerHTML =
+	      '<span class="error">Unable to load sitemap.</span><br>' +
+	      `<a href="${origin}/sitemap.xml" target="_blank">Open in new tab</a>`;
+	  });
+
 	}
   });
 });
@@ -382,6 +396,7 @@ toggleBtn.addEventListener('click', () => {
 </script>
 </body>
 </html>
+
 
 
 

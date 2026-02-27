@@ -129,6 +129,23 @@ pre {
     grid-template-columns: 1fr;
   }
 }
+	.na-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 260px;
+}
+
+.na-badge {
+  display: inline-block;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: #2b2b2b;
+  border: 1px solid #444;
+  color: #bbb;
+  font-size: 12px;
+  text-align: center;
+}
 </style>
 </head>
 
@@ -184,12 +201,11 @@ document.getElementById('openBtn').addEventListener('click', () => {
     const box = document.createElement('div');
     box.className = 'site-box';
 
-    if (skipRobotsSitemap) {
+   if (skipRobotsSitemap) {
 	  box.innerHTML = `
 	    <h2>${displayUrl}</h2>
-	    <div class="panel">
-	      <h3>robots.txt / sitemap.xml</h3>
-	      <pre class="error">Not applicable for Cloudflare Pages/R2 domains</pre>
+	    <div class="panel na-panel">
+	      <div class="na-badge">Not applicable for Pages/R2 domain</div>
 	    </div>
 	  `;
 	} else {
@@ -229,6 +245,7 @@ document.getElementById('openBtn').addEventListener('click', () => {
 </script>
 </body>
 </html>
+
 
 
 

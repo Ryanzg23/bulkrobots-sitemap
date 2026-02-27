@@ -319,34 +319,53 @@ document.getElementById('openBtn').addEventListener('click', () => {
 
     const pre = box.querySelector('pre');
 
-    fetch('/.netlify/functions/sitemap?url=' + encodeURIComponent(origin + '/sitemap.xml'))
-      .then(async r => {
-        const text = await r.text();
-        const redirect = r.headers.get('X-Redirect-Domain') === '1';
+   fetch('/.netlify/functions/sitemap?url=' + encodeURIComponent(origin + '/sitemap.xml'))
+  .then(async r => {
+    const text = await r.text();
+    const redirect = r.headers.get('X-Redirect-Domain') === '1';
 
-        if (redirect) {
-          box.innerHTML = `
-            <h2>${displayUrl}</h2>
-            <div class="panel na-panel">
-              <div class="na-badge">301 Domain</div>
-            </div>
-          `;
-          return;
-        }
+    if (redirect) {
+      box.innerHTML = `
+        <h2>${displayUrl}</h2>
+        <div class="panel na-panel">
+          <div class="na-badge">301 Domain</div>
+        </div>
+      `;
+      return;
+    }
 
-        pre.textContent = text;
-      })
-      .catch(() => {
-        pre.innerHTML =
-          '<span class="error">Unable to load sitemap.</span><br>' +
-          `<a href="${origin}/sitemap.xml" target="_blank">Open in new tab</a>`;
-      });
+    box.innerHTML = `
+      <h2>${displayUrl}</h2>
+      <div class="flex">
+        <div class="panel">
+          <h3>robots.txt</h3>
+          <iframe src="${origin}/robots.txt"></iframe>
+        </div>
+        <div class="panel">
+          <h3>sitemap.xml</h3>
+          <pre></pre>
+        </div>
+      </div>
+    `;
+
+    const pre = box.querySelector('pre');
+    pre.textContent = text;
+  })
+  .catch(() => {
+    box.innerHTML = `
+      <h2>${displayUrl}</h2>
+      <div class="panel na-panel">
+        <div class="na-badge">Unable to load sitemap</div>
+      </div>
+    `;
+  });
   });
 });
 
 </script>
 </body>
 </html>
+
 
 
 

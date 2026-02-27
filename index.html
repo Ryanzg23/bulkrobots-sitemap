@@ -285,14 +285,28 @@ document.getElementById('openBtn').addEventListener('click', () => {
     const box = document.createElement('div');
     box.className = 'site-box';
 
-    if (skipRobotsSitemap) {
+fetch('/.netlify/functions/sitemap?url=' + encodeURIComponent(origin + '/sitemap.xml'))
+  .then(r => r.json())
+  .then(data => {
+
+    const is301Domain = data.redirectDomain;
+    const noPanels = skipRobotsSitemap || is301Domain;
+
+    if (noPanels) {
+
+      let label = '';
+      if (is301Domain) label = '301 Domain';
+      else label = 'Not applicable for Pages/R2 domains';
+
       box.innerHTML = `
         <h2>${displayUrl}</h2>
         <div class="panel na-panel">
-          <div class="na-badge">Not applicable for Pages/R2 domains</div>
+          <div class="na-badge">${label}</div>
         </div>
       `;
+
     } else {
+
       box.innerHTML = `
         <h2>${displayUrl}</h2>
         <div class="flex">
@@ -302,11 +316,22 @@ document.getElementById('openBtn').addEventListener('click', () => {
           </div>
           <div class="panel">
             <h3>sitemap.xml</h3>
-            <pre>Loading sitemap…</pre>
+            <pre>${data.xml || 'Unable to load sitemap.'}</pre>
           </div>
         </div>
       `;
     }
+
+  })
+  .catch(() => {
+    box.innerHTML = `
+      <h2>${displayUrl}</h2>
+      <div class="panel na-panel">
+        <div class="na-badge">Unable to load sitemap</div>
+      </div>
+    `;
+  });
+
 
     results.appendChild(box);
 
@@ -373,6 +398,7 @@ toggleBtn.addEventListener('click', () => {
 </script>
 </body>
 </html>
+
 
 
 

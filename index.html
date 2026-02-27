@@ -282,7 +282,7 @@ document.getElementById('openBtn').addEventListener('click', () => {
     const isCloudflareR2 = hostname.endsWith('.r2.dev');
     const skipRobotsSitemap = isCloudflarePages || isCloudflareR2;
 
-    const box = document.createElement('div');
+const box = document.createElement('div');
 box.className = 'site-box';
 results.appendChild(box);
 
@@ -294,7 +294,6 @@ fetch('/.netlify/functions/sitemap?url=' + encodeURIComponent(origin + '/sitemap
     const noPanels = skipRobotsSitemap || is301Domain;
 
     if (noPanels) {
-
       const label = is301Domain
         ? '301 Domain'
         : 'Not applicable for Pages/R2 domains';
@@ -305,24 +304,22 @@ fetch('/.netlify/functions/sitemap?url=' + encodeURIComponent(origin + '/sitemap
           <div class="na-badge">${label}</div>
         </div>
       `;
-
-    } else {
-
-      box.innerHTML = `
-        <h2>${displayUrl}</h2>
-        <div class="flex">
-          <div class="panel">
-            <h3>robots.txt</h3>
-            <iframe src="${origin}/robots.txt"></iframe>
-          </div>
-          <div class="panel">
-            <h3>sitemap.xml</h3>
-            <iframe src="${origin}/sitemap.xml"></iframe>
-          </div>
-        </div>
-      `;
+      return;
     }
 
+    box.innerHTML = `
+      <h2>${displayUrl}</h2>
+      <div class="flex">
+        <div class="panel">
+          <h3>robots.txt</h3>
+          <iframe src="${origin}/robots.txt"></iframe>
+        </div>
+        <div class="panel">
+          <h3>sitemap.xml</h3>
+          <iframe src="${origin}/sitemap.xml"></iframe>
+        </div>
+      </div>
+    `;
   })
   .catch(() => {
     box.innerHTML = `
@@ -399,6 +396,7 @@ toggleBtn.addEventListener('click', () => {
 </script>
 </body>
 </html>
+
 
 
 

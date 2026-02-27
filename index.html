@@ -253,37 +253,12 @@ function normalizeUrl(url) {
   try {
     const u = new URL(url);
     return {
-      display: url.replace(/\/+$/, ''), // keep subfolders
-      origin: u.origin                 // root for robots/sitemap
+      display: url.replace(/\/+$/, ''),
+      origin: u.origin
     };
   } catch {
     return null;
   }
-}
-
-async function detectDomainRedirect(origin) {
-  try {
-    const res = await fetch(origin, {
-      method: 'HEAD',
-      redirect: 'manual'
-    });
-
-    if (res.status === 301 || res.status === 308) {
-      const location = res.headers.get('location');
-      if (!location) return null;
-
-      const target = new URL(location, origin).origin;
-
-      const fromHost = new URL(origin).hostname.replace(/^www\./, '');
-      const toHost = new URL(target).hostname.replace(/^www\./, '');
-
-      if (fromHost !== toHost) {
-        return target;
-      }
-    }
-  } catch {}
-
-  return null;
 }
 
 document.getElementById('openBtn').addEventListener('click', () => {
@@ -298,80 +273,81 @@ document.getElementById('openBtn').addEventListener('click', () => {
     return;
   }
 
-	for (const site of sites) {
-	  const displayUrl = site.display;
-	  const origin = site.origin;
-	
-	  const redirectTarget = await detectDomainRedirect(origin);
-	const hostname = new URL(origin).hostname;
-	const isCloudflarePages = hostname.endsWith('.pages.dev');
-	const isCloudflareR2 = hostname.endsWith('.r2.dev');
-	const skipRobotsSitemap = isCloudflarePages || isCloudflareR2;
+  sites.forEach(site => {
+    const displayUrl = site.display;
+    const origin = site.origin;
+
+    const hostname = new URL(origin).hostname;
+    const isCloudflarePages = hostname.endsWith('.pages.dev');
+    const isCloudflareR2 = hostname.endsWith('.r2.dev');
+    const skipRobotsSitemap = isCloudflarePages || isCloudflareR2;
+
     const box = document.createElement('div');
     box.className = 'site-box';
 
-   if (skipRobotsSitemap) {
-	  box.innerHTML = `
-	    <h2>
-		  ${displayUrl}
-		  ${redirectTarget ? '<span class="redirect-badge">301 Domain</span>' : ''}
-		</h2>
-	    <div class="panel na-panel">
-	      <div class="na-badge">Not applicable for pages.dev Domains</div>
-	    </div>
-	  `;
-	} else {
-	  box.innerHTML = `
-	    <h2>
-		  ${displayUrl}
-		  ${redirectTarget ? '<span class="redirect-badge">301 Domain</span>' : ''}
-		</h2>
-	    <div class="flex">
-	      <div class="panel">
-	        <h3>robots.txt</h3>
-	        <iframe src="${origin}/robots.txt"></iframe>
-	      </div>
-	      <div class="panel">
-	        <h3>sitemap.xml</h3>
-	        <pre>Loading sitemap…</pre>
-	      </div>
-	    </div>
-	  `;
-	}
+    if (skipRobotsSitemap) {
+      box.innerHTML = `
+        <h2>${displayUrl}</h2>
+        <div class="panel na-panel">
+          <div class="na-badge">Not applicable for Pages/R2 domains</div>
+        </div>
+      `;
+    } else {
+      box.innerHTML = `
+        <h2>${displayUrl}</h2>
+        <div class="flex">
+          <div class="panel">
+            <h3>robots.txt</h3>
+            <iframe src="${origin}/robots.txt"></iframe>
+          </div>
+          <div class="panel">
+            <h3>sitemap.xml</h3>
+            <pre>Loading sitemap…</pre>
+          </div>
+        </div>
+      `;
+    }
 
     results.appendChild(box);
 
-    const pre = box.querySelector('pre');
-
     if (!skipRobotsSitemap) {
-	  const pre = box.querySelector('pre');
-	
-	  fetch('/.netlify/functions/sitemap?url=' + encodeURIComponent(origin + '/sitemap.xml'))
-	  .then(r => r.json())
-	  .then(data => {
-	    if (data.redirectDomain) {
-	      const badge = document.createElement('span');
-	      badge.className = 'redirect-badge';
-	      badge.textContent = '301 Domain';
-	      box.querySelector('h2').appendChild(badge);
-	    }
-	
-	    if (data.xml) {
-	      pre.textContent = data.xml;
-	    } else {
-	      throw new Error();
-	    }
-	  })
-	  .catch(() => {
-	    pre.innerHTML =
-	      '<span class="error">Unable to load sitemap.</span><br>' +
-	      `<a href="${origin}/sitemap.xml" target="_blank">Open in new tab</a>`;
-	  });
+      const pre = box.querySelector('pre');
 
-	}
+      fetch('/.netlify/functions/sitemap?url=' + encodeURIComponent(origin + '/sitemap.xml'))
+        .then(r => r.json())
+        .then(data => {
+
+          // --- 301 badge from server ---
+          if (data.redirectDomain) {
+            const h2 = box.querySelector('h2');
+            if (!h2.querySelector('.redirect-badge')) {
+              const badge = document.createElement('span');
+              badge.className = 'redirect-badge';
+              badge.textContent = '301 Domain';
+              h2.appendChild(badge);
+            }
+          }
+
+          // --- sitemap ---
+          if (data.xml && pre) {
+            pre.textContent = data.xml;
+          } else {
+            throw new Error();
+          }
+        })
+        .catch(() => {
+          if (pre) {
+            pre.innerHTML =
+              '<span class="error">Unable to load sitemap.</span><br>' +
+              `<a href="${origin}/sitemap.xml" target="_blank">Open in new tab</a>`;
+          }
+        });
+    }
   });
 });
-	
+
+/* ---------- THEME ---------- */
+
 const toggleBtn = document.getElementById('themeToggle');
 
 function applyTheme(theme) {
@@ -393,9 +369,11 @@ toggleBtn.addEventListener('click', () => {
   localStorage.setItem('theme', theme);
   applyTheme(theme);
 });
+
 </script>
 </body>
 </html>
+
 
 
 

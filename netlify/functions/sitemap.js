@@ -5,7 +5,7 @@ export async function handler(event) {
   if (!url) {
     return { statusCode: 400, body: 'Missing url' };
   }
-
+ 
   try {
     // --- detect domain redirect ---
     let redirectDomain = false;
@@ -56,3 +56,4 @@ export async function handler(event) {
     return { statusCode: 500, body: 'Server error' };
   }
 }
+

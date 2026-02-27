@@ -146,10 +146,17 @@ pre {
 function normalizeUrl(url) {
   url = url.trim();
   if (!url) return null;
+
   if (!/^https?:\/\//i.test(url)) {
     url = 'https://' + url;
   }
-  return url.replace(/\/+$/, '');
+
+  try {
+    const u = new URL(url);
+    return u.origin; // 👈 root domain only
+  } catch {
+    return null;
+  }
 }
 
 document.getElementById('openBtn').addEventListener('click', () => {
@@ -199,5 +206,6 @@ document.getElementById('openBtn').addEventListener('click', () => {
 </script>
 </body>
 </html>
+
 
 

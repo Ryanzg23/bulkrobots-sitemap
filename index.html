@@ -301,7 +301,7 @@ document.getElementById('openBtn').addEventListener('click', () => {
       return;
     }
 
-    /* ---------- SIMPLE DIRECT IFRAMES ---------- */
+    /* ---------- INITIAL RENDER ---------- */
     box.innerHTML = `
       <h2>${displayUrl}</h2>
       <div class="flex">
@@ -317,6 +317,23 @@ document.getElementById('openBtn').addEventListener('click', () => {
     `;
 
     results.appendChild(box);
+
+    /* ---------- 301 DETECTION ---------- */
+    fetch('/.netlify/functions/sitemap?url=' + encodeURIComponent(origin + '/sitemap.xml'))
+      .then(r => r.json())
+      .then(data => {
+        if (data.redirectDomain) {
+          box.innerHTML = `
+            <h2>${displayUrl}</h2>
+            <div class="panel na-panel">
+              <div class="na-badge">301 Domain</div>
+            </div>
+          `;
+        }
+      })
+      .catch(() => {
+        // ignore detection errors
+      });
   });
 });
 
@@ -347,6 +364,7 @@ toggleBtn.addEventListener('click', () => {
 </script>
 </body>
 </html>
+
 
 
 

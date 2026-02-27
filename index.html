@@ -74,6 +74,7 @@
 .container {
   width: 100%;
   max-width: 1400px;
+  position: relative;
 }
 
 h1 {
@@ -196,12 +197,29 @@ pre {
   font-size: 12px;
   text-align: center;
 }
+.theme-toggle {
+  position: absolute;
+  top: 30px;
+  right: 30px;
+  padding: 8px 14px;
+  font-size: 13px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.theme-toggle:hover {
+  opacity: 0.85;
+}
 </style>
 </head>
 
 <body>
 <div class="container">
   <h1>Bulk Robots & Sitemap Viewer</h1>
+ <button id="themeToggle" class="theme-toggle">🌙 Dark</button>
 
   <textarea id="urls" placeholder="Enter URLs (one per line)"></textarea>
   <button id="openBtn">Open All</button>
@@ -295,6 +313,7 @@ document.getElementById('openBtn').addEventListener('click', () => {
 </script>
 </body>
 </html>
+
 
 
 

@@ -153,7 +153,10 @@ function normalizeUrl(url) {
 
   try {
     const u = new URL(url);
-    return u.origin; // 👈 root domain only
+    return {
+      display: url.replace(/\/+$/, ''), // keep subfolders
+      origin: u.origin                 // root for robots/sitemap
+    };
   } catch {
     return null;
   }
@@ -172,15 +175,17 @@ document.getElementById('openBtn').addEventListener('click', () => {
   }
 
   sites.forEach(site => {
+	  const displayUrl = site.display;
+	  const origin = site.origin;
     const box = document.createElement('div');
     box.className = 'site-box';
 
     box.innerHTML = `
-      <h2>${site}</h2>
+      <h2>${displayUrl}</h2>
       <div class="flex">
         <div class="panel">
           <h3>robots.txt</h3>
-          <iframe src="${site}/robots.txt"></iframe>
+          <iframe src="${origin}/robots.txt"></iframe>
         </div>
         <div class="panel">
           <h3>sitemap.xml</h3>
@@ -193,19 +198,20 @@ document.getElementById('openBtn').addEventListener('click', () => {
 
     const pre = box.querySelector('pre');
 
-    fetch('/.netlify/functions/sitemap?url=' + encodeURIComponent(site + '/sitemap.xml'))
+    fetch('/.netlify/functions/sitemap?url=' + encodeURIComponent(origin + '/sitemap.xml'))
       .then(r => r.ok ? r.text() : Promise.reject())
       .then(text => pre.textContent = text)
       .catch(() => {
         pre.innerHTML =
           '<span class="error">Unable to load sitemap.</span><br>' +
-          `<a href="${site}/sitemap.xml" target="_blank">Open in new tab</a>`;
+          `<a href="${origin}/sitemap.xml" target="_blank">Open in new tab</a>`;
       });
   });
 });
 </script>
 </body>
 </html>
+
 
 
 

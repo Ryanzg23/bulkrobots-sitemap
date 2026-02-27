@@ -212,19 +212,24 @@ document.getElementById('openBtn').addEventListener('click', () => {
 
     const pre = box.querySelector('pre');
 
-    fetch('/.netlify/functions/sitemap?url=' + encodeURIComponent(origin + '/sitemap.xml'))
-      .then(r => r.ok ? r.text() : Promise.reject())
-      .then(text => pre.textContent = text)
-      .catch(() => {
-        pre.innerHTML =
-          '<span class="error">Unable to load sitemap.</span><br>' +
-          `<a href="${origin}/sitemap.xml" target="_blank">Open in new tab</a>`;
-      });
+    if (!skipRobotsSitemap) {
+	  const pre = box.querySelector('pre');
+	
+	  fetch('/.netlify/functions/sitemap?url=' + encodeURIComponent(origin + '/sitemap.xml'))
+	    .then(r => r.ok ? r.text() : Promise.reject())
+	    .then(text => pre.textContent = text)
+	    .catch(() => {
+	      pre.innerHTML =
+	        '<span class="error">Unable to load sitemap.</span><br>' +
+	        `<a href="${origin}/sitemap.xml" target="_blank">Open in new tab</a>`;
+	    });
+	}
   });
 });
 </script>
 </body>
 </html>
+
 
 
 

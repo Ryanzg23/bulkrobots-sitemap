@@ -175,24 +175,38 @@ document.getElementById('openBtn').addEventListener('click', () => {
   }
 
   sites.forEach(site => {
-	  const displayUrl = site.display;
-	  const origin = site.origin;
+	const displayUrl = site.display;
+	const origin = site.origin;
+	const hostname = new URL(origin).hostname;
+	const isCloudflarePages = hostname.endsWith('.pages.dev');
+	const isCloudflareR2 = hostname.endsWith('.r2.dev');
+	const skipRobotsSitemap = isCloudflarePages || isCloudflareR2;
     const box = document.createElement('div');
     box.className = 'site-box';
 
-    box.innerHTML = `
-      <h2>${displayUrl}</h2>
-      <div class="flex">
-        <div class="panel">
-          <h3>robots.txt</h3>
-          <iframe src="${origin}/robots.txt"></iframe>
-        </div>
-        <div class="panel">
-          <h3>sitemap.xml</h3>
-          <pre>Loading sitemap…</pre>
-        </div>
-      </div>
-    `;
+    if (skipRobotsSitemap) {
+	  box.innerHTML = `
+	    <h2>${displayUrl}</h2>
+	    <div class="panel">
+	      <h3>robots.txt / sitemap.xml</h3>
+	      <pre class="error">Not applicable for Cloudflare Pages/R2 domains</pre>
+	    </div>
+	  `;
+	} else {
+	  box.innerHTML = `
+	    <h2>${displayUrl}</h2>
+	    <div class="flex">
+	      <div class="panel">
+	        <h3>robots.txt</h3>
+	        <iframe src="${origin}/robots.txt"></iframe>
+	      </div>
+	      <div class="panel">
+	        <h3>sitemap.xml</h3>
+	        <pre>Loading sitemap…</pre>
+	      </div>
+	    </div>
+	  `;
+	}
 
     results.appendChild(box);
 
@@ -211,6 +225,7 @@ document.getElementById('openBtn').addEventListener('click', () => {
 </script>
 </body>
 </html>
+
 
 
 

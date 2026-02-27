@@ -5,10 +5,9 @@ export async function handler(event) {
   if (!url) {
     return {
       statusCode: 400,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ error: "Missing url" })
+      body: "Missing url"
     };
-  } 
+  }
 
   try {
     let redirectDomain = false;
@@ -22,61 +21,37 @@ export async function handler(event) {
 
       if (head.status === 301 || head.status === 308) {
         const location = head.headers.get("location");
-
         if (location) {
           const fromHost = new URL(url).hostname.replace(/^www\./, "");
           const toHost = new URL(location, url).hostname.replace(/^www\./, "");
-
-          if (fromHost !== toHost) {
-            redirectDomain = true;
-          }
+          if (fromHost !== toHost) redirectDomain = true;
         }
       }
-    } catch {
-      // ignore redirect detection errors
-    }
+    } catch {}
 
-    /* ---------- FETCH SITEMAP XML ---------- */
+    /* ---------- FETCH XML ---------- */
     const res = await fetch(url, {
       headers: {
-        "User-Agent": "Mozilla/5.0 (compatible; SitemapViewer/1.0)"
+        "User-Agent": "Mozilla/5.0"
       }
     });
-
-    if (!res.ok) {
-      return {
-        statusCode: res.status,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          error: true,
-          redirectDomain
-        })
-      };
-    }
 
     const xml = await res.text();
 
     return {
       statusCode: 200,
       headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*"
+        "Content-Type": "application/xml",
+        "Access-Control-Allow-Origin": "*",
+        "X-Redirect-Domain": redirectDomain ? "1" : "0"
       },
-      body: JSON.stringify({
-        xml,
-        redirectDomain
-      })
+      body: xml
     };
 
   } catch (err) {
     return {
       statusCode: 500,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        error: "Server error",
-        redirectDomain: false
-      })
+      body: "Error fetching sitemap"
     };
   }
 }
-

@@ -283,7 +283,8 @@ document.getElementById('openBtn').addEventListener('click', () => {
     const skipRobotsSitemap = isCloudflarePages || isCloudflareR2;
 
     const box = document.createElement('div');
-    box.className = 'site-box';
+box.className = 'site-box';
+results.appendChild(box);
 
 fetch('/.netlify/functions/sitemap?url=' + encodeURIComponent(origin + '/sitemap.xml'))
   .then(r => r.json())
@@ -294,9 +295,9 @@ fetch('/.netlify/functions/sitemap?url=' + encodeURIComponent(origin + '/sitemap
 
     if (noPanels) {
 
-      let label = '';
-      if (is301Domain) label = '301 Domain';
-      else label = 'Not applicable for Pages/R2 domains';
+      const label = is301Domain
+        ? '301 Domain'
+        : 'Not applicable for Pages/R2 domains';
 
       box.innerHTML = `
         <h2>${displayUrl}</h2>
@@ -316,7 +317,7 @@ fetch('/.netlify/functions/sitemap?url=' + encodeURIComponent(origin + '/sitemap
           </div>
           <div class="panel">
             <h3>sitemap.xml</h3>
-            <pre>${data.xml || 'Unable to load sitemap.'}</pre>
+            <iframe src="${origin}/sitemap.xml"></iframe>
           </div>
         </div>
       `;
@@ -398,6 +399,7 @@ toggleBtn.addEventListener('click', () => {
 </script>
 </body>
 </html>
+
 
 
 

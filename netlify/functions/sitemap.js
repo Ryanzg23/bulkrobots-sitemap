@@ -3,57 +3,79 @@ export async function handler(event) {
   const url = params.url;
 
   if (!url) {
-    return { statusCode: 400, body: 'Missing url' };
+    return {
+      statusCode: 400,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ error: "Missing url" })
+    };
   }
- 
+
   try {
-    // --- detect domain redirect ---
     let redirectDomain = false;
 
+    /* ---------- DOMAIN REDIRECT DETECTION ---------- */
     try {
       const head = await fetch(url, {
-        method: 'HEAD',
-        redirect: 'manual'
+        method: "HEAD",
+        redirect: "manual"
       });
 
       if (head.status === 301 || head.status === 308) {
-        const location = head.headers.get('location');
+        const location = head.headers.get("location");
+
         if (location) {
-          const from = new URL(url).hostname.replace(/^www\./, '');
-          const to = new URL(location, url).hostname.replace(/^www\./, '');
-          if (from !== to) redirectDomain = true;
+          const fromHost = new URL(url).hostname.replace(/^www\./, "");
+          const toHost = new URL(location, url).hostname.replace(/^www\./, "");
+
+          if (fromHost !== toHost) {
+            redirectDomain = true;
+          }
         }
       }
-    } catch {}
+    } catch {
+      // ignore redirect detection errors
+    }
 
-    // --- fetch sitemap ---
+    /* ---------- FETCH SITEMAP XML ---------- */
     const res = await fetch(url, {
-      headers: { 'User-Agent': 'Mozilla/5.0' }
+      headers: {
+        "User-Agent": "Mozilla/5.0 (compatible; SitemapViewer/1.0)"
+      }
     });
 
     if (!res.ok) {
       return {
         statusCode: res.status,
-        body: JSON.stringify({ error: true, redirectDomain })
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          error: true,
+          redirectDomain
+        })
       };
     }
 
-    const text = await res.text();
+    const xml = await res.text();
 
     return {
       statusCode: 200,
       headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*'
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*"
       },
       body: JSON.stringify({
-        xml: text,
+        xml,
         redirectDomain
       })
     };
 
-  } catch {
-    return { statusCode: 500, body: 'Server error' };
+  } catch (err) {
+    return {
+      statusCode: 500,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        error: "Server error",
+        redirectDomain: false
+      })
+    };
   }
 }
-

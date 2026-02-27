@@ -285,12 +285,12 @@ document.getElementById('openBtn').addEventListener('click', () => {
     const hostname = new URL(origin).hostname;
     const isCloudflarePages = hostname.endsWith('.pages.dev');
     const isCloudflareR2 = hostname.endsWith('.r2.dev');
-    const skipRobotsSitemap = isCloudflarePages || isCloudflareR2;
+    const skip = isCloudflarePages || isCloudflareR2;
 
     const box = document.createElement('div');
     box.className = 'site-box';
 
-    if (skipRobotsSitemap) {
+    if (skip) {
       box.innerHTML = `
         <h2>${displayUrl}</h2>
         <div class="panel na-panel">
@@ -301,7 +301,6 @@ document.getElementById('openBtn').addEventListener('click', () => {
       return;
     }
 
-    /* ---------- INITIAL RENDER ---------- */
     box.innerHTML = `
       <h2>${displayUrl}</h2>
       <div class="flex">
@@ -311,59 +310,44 @@ document.getElementById('openBtn').addEventListener('click', () => {
         </div>
         <div class="panel">
           <h3>sitemap.xml</h3>
-          <iframe src="${origin}/sitemap.xml" class="xml-frame"></iframe>
+          <pre>Loading sitemap…</pre>
         </div>
       </div>
     `;
 
     results.appendChild(box);
 
-    /* ---------- 301 DETECTION ---------- */
+    const pre = box.querySelector('pre');
+
     fetch('/.netlify/functions/sitemap?url=' + encodeURIComponent(origin + '/sitemap.xml'))
-      .then(r => r.json())
-      .then(data => {
-        if (data.redirectDomain) {
+      .then(async r => {
+        const text = await r.text();
+        const redirect = r.headers.get('X-Redirect-Domain') === '1';
+
+        if (redirect) {
           box.innerHTML = `
             <h2>${displayUrl}</h2>
             <div class="panel na-panel">
               <div class="na-badge">301 Domain</div>
             </div>
           `;
+          return;
         }
+
+        pre.textContent = text;
       })
       .catch(() => {
-        // ignore detection errors
+        pre.innerHTML =
+          '<span class="error">Unable to load sitemap.</span><br>' +
+          `<a href="${origin}/sitemap.xml" target="_blank">Open in new tab</a>`;
       });
   });
-});
-
-/* ---------- THEME ---------- */
-
-const toggleBtn = document.getElementById('themeToggle');
-
-function applyTheme(theme) {
-  if (theme === 'light') {
-    document.body.classList.add('light');
-    toggleBtn.textContent = '☀️ Light';
-  } else {
-    document.body.classList.remove('light');
-    toggleBtn.textContent = '🌙 Dark';
-  }
-}
-
-const savedTheme = localStorage.getItem('theme') || 'dark';
-applyTheme(savedTheme);
-
-toggleBtn.addEventListener('click', () => {
-  const isLight = document.body.classList.toggle('light');
-  const theme = isLight ? 'light' : 'dark';
-  localStorage.setItem('theme', theme);
-  applyTheme(theme);
 });
 
 </script>
 </body>
 </html>
+
 
 
 

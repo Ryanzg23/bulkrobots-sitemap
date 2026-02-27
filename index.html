@@ -290,7 +290,6 @@ document.getElementById('openBtn').addEventListener('click', () => {
     const box = document.createElement('div');
     box.className = 'site-box';
 
-    /* ---------- NA DOMAINS ---------- */
     if (skipRobotsSitemap) {
       box.innerHTML = `
         <h2>${displayUrl}</h2>
@@ -302,7 +301,6 @@ document.getElementById('openBtn').addEventListener('click', () => {
       return;
     }
 
-    /* ---------- INITIAL RENDER (XML iframe immediately) ---------- */
     box.innerHTML = `
       <h2>${displayUrl}</h2>
       <div class="flex">
@@ -312,14 +310,14 @@ document.getElementById('openBtn').addEventListener('click', () => {
         </div>
         <div class="panel">
           <h3>sitemap.xml</h3>
-          <iframe src="/.netlify/functions/sitemap-xml?url=${encodeURIComponent(origin + '/sitemap.xml')}" class="xml-frame"></iframe>
+          <iframe src="${origin}/sitemap.xml"></iframe>
         </div>
       </div>
     `;
 
     results.appendChild(box);
 
-    /* ---------- 301 DOMAIN DETECTION ---------- */
+    /* optional 301 detection (meta only) */
     fetch('/.netlify/functions/sitemap-meta?url=' + encodeURIComponent(origin + '/sitemap.xml'))
       .then(r => r.json())
       .then(data => {
@@ -332,9 +330,7 @@ document.getElementById('openBtn').addEventListener('click', () => {
           `;
         }
       })
-      .catch(() => {
-        // ignore meta errors — XML iframe still shows sitemap
-      });
+      .catch(() => {});
   });
 });
 
@@ -365,6 +361,7 @@ toggleBtn.addEventListener('click', () => {
 </script>
 </body>
 </html>
+
 
 
 

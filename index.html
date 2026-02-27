@@ -301,6 +301,7 @@ document.getElementById('openBtn').addEventListener('click', () => {
       return;
     }
 
+    /* ---------- SIMPLE DIRECT IFRAMES ---------- */
     box.innerHTML = `
       <h2>${displayUrl}</h2>
       <div class="flex">
@@ -310,27 +311,12 @@ document.getElementById('openBtn').addEventListener('click', () => {
         </div>
         <div class="panel">
           <h3>sitemap.xml</h3>
-          <iframe src="${origin}/sitemap.xml"></iframe>
+          <iframe src="${origin}/sitemap.xml" class="xml-frame"></iframe>
         </div>
       </div>
     `;
 
     results.appendChild(box);
-
-    /* optional 301 detection (meta only) */
-    fetch('/.netlify/functions/sitemap-meta?url=' + encodeURIComponent(origin + '/sitemap.xml'))
-      .then(r => r.json())
-      .then(data => {
-        if (data.redirectDomain) {
-          box.innerHTML = `
-            <h2>${displayUrl}</h2>
-            <div class="panel na-panel">
-              <div class="na-badge">301 Domain</div>
-            </div>
-          `;
-        }
-      })
-      .catch(() => {});
   });
 });
 
@@ -361,6 +347,7 @@ toggleBtn.addEventListener('click', () => {
 </script>
 </body>
 </html>
+
 
 
 

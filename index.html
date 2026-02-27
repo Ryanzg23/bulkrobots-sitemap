@@ -225,7 +225,12 @@ pre {
   border: 1px solid #0d6efd55;
   color: #0d6efd;
 }
-
+.xml-viewer {
+  width: 100%;
+  height: 260px;
+  border: none;
+  background: #fff;
+}
 </style>
 </head>
 
@@ -315,9 +320,9 @@ fetch('/.netlify/functions/sitemap?url=' + encodeURIComponent(origin + '/sitemap
           <iframe src="${origin}/robots.txt"></iframe>
         </div>
         <div class="panel">
-          <h3>sitemap.xml</h3>
-          <iframe src="${origin}/sitemap.xml"></iframe>
-        </div>
+		  <h3>sitemap.xml</h3>
+		  <object data="${origin}/sitemap.xml" type="application/xml" class="xml-viewer"></object>
+		</div>
       </div>
     `;
   })
@@ -396,6 +401,7 @@ toggleBtn.addEventListener('click', () => {
 </script>
 </body>
 </html>
+
 
 
 

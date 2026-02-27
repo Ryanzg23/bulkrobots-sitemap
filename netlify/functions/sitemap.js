@@ -5,14 +5,14 @@ export async function handler(event) {
   if (!url) {
     return {
       statusCode: 400,
-      body: "Missing url"
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ error: true })
     };
   }
 
   try {
     let redirectDomain = false;
 
-    /* ---------- DOMAIN REDIRECT DETECTION ---------- */
     try {
       const head = await fetch(url, {
         method: "HEAD",
@@ -29,29 +29,17 @@ export async function handler(event) {
       }
     } catch {}
 
-    /* ---------- FETCH XML ---------- */
-    const res = await fetch(url, {
-      headers: {
-        "User-Agent": "Mozilla/5.0"
-      }
-    });
-
-    const xml = await res.text();
-
     return {
       statusCode: 200,
-      headers: {
-        "Content-Type": "application/xml",
-        "Access-Control-Allow-Origin": "*",
-        "X-Redirect-Domain": redirectDomain ? "1" : "0"
-      },
-      body: xml
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ redirectDomain })
     };
 
-  } catch (err) {
+  } catch {
     return {
       statusCode: 500,
-      body: "Error fetching sitemap"
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ error: true })
     };
   }
 }
